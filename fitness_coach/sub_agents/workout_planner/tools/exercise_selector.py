@@ -1,0 +1,62 @@
+"""Tool for selecting appropriate exercises based on user parameters."""
+
+from typing import Dict, List, Literal, Optional, Any
+from google.adk.tools import FunctionTool
+
+ExperienceLevelType = Literal["beginner", "intermediate", "advanced"]
+WorkoutLocationType = Literal["home", "gym", "outdoors"]
+MuscleGroupType = Literal["chest", "back", "arms", "shoulders", "legs", "core", "full_body", "cardio"]
+
+def select_exercises(
+    experience_level: ExperienceLevelType,
+    workout_location: WorkoutLocationType,
+    target_muscle_groups: List[MuscleGroupType],
+    available_equipment: Optional[List[str]] = None,
+    time_available_minutes: Optional[int] = 60,
+    exclude_exercises: Optional[List[str]] = None,
+    training_goal: Optional[str] = "general_fitness",
+) -> Dict[str, Any]:
+    """
+    Selects appropriate exercises based on user parameters.
+    
+    Args:
+        experience_level: User's training experience level
+        workout_location: Where the workout will be performed
+        target_muscle_groups: List of muscle groups to target
+        available_equipment: Optional list of available equipment
+        time_available_minutes: Optional time available for workout in minutes
+        exclude_exercises: Optional list of exercises to exclude
+        training_goal: Optional specific training goal
+        
+    Returns:
+        Dictionary with selected exercises, workout structure, and estimated duration
+    """
+    # This is a placeholder - in a real implementation, this would select 
+    # exercises from a database based on the provided parameters
+    
+    # Example response format
+    return {
+        "exercises": [
+            {
+                "name": "Push-ups",
+                "sets": 3,
+                "reps": "10-12",
+                "rest_seconds": 60,
+                "muscle_group": "chest",
+            },
+            {
+                "name": "Bodyweight Squats",
+                "sets": 3,
+                "reps": "15-20",
+                "rest_seconds": 60,
+                "muscle_group": "legs",
+            },
+        ],
+        "duration_minutes": 30,
+        "difficulty": experience_level,
+        "equipment_needed": ["none"],
+    }
+
+exercise_selector = FunctionTool(
+    func=select_exercises,
+) 

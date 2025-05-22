@@ -1,0 +1,8 @@
+{
+  "id_generation": {
+    "response": "I've generated a unique ID for you. You can use this ID to track your fitness progress."
+  },
+  "general_error": {
+    "response": "I'm experiencing some connectivity issues right now. Let me try to help you with the basic functionality I have available."
+  }
+}
