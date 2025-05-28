@@ -186,14 +186,11 @@ def render_meal_plan(text):
             
             if macros_match:
                 st.markdown("**Macronutrients:**")
-                cols = st.columns(len(macros_match))
-                for i, (name, amount, percentage) in enumerate(macros_match):
-                    with cols[i]:
-                        st.metric(
-                            label=name.strip(),
-                            value=amount.strip(),
-                            delta=percentage.strip()
-                        )
+                # Change from st.metric to markdown for consistency with workout plan
+                macro_details = []
+                for name, amount, percentage in macros_match:
+                    macro_details.append(f"{name.strip()}: {amount.strip()} ({percentage.strip()})")
+                st.markdown(", ".join(macro_details))
     
     # Render meals in a timeline view
     meal_keys = ["Breakfast", "Mid-Morning Snack", "Lunch", "Evening Snack", "Dinner", "Post-Dinner"]
@@ -213,6 +210,7 @@ def render_meal_plan(text):
                 prep_match = re.search(r'Preparation:\s*([^\n]+)', meal_content)
                 subst_match = re.search(r'Substitution:\s*([^\n]+)', meal_content)
                 
+                # Ensure consistent formatting with workout exercises
                 cols = st.columns([3, 1])
                 with cols[0]:
                     if dish_match:

@@ -12,9 +12,9 @@ def select_exercises(
     workout_location: WorkoutLocationType,
     target_muscle_groups: List[MuscleGroupType],
     available_equipment: Optional[List[str]] = None,
-    time_available_minutes: Optional[int] = 60,
+    time_available_minutes: Optional[int] = None,
     exclude_exercises: Optional[List[str]] = None,
-    training_goal: Optional[str] = "general_fitness",
+    training_goal: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Selects appropriate exercises based on user parameters.
@@ -31,6 +31,12 @@ def select_exercises(
     Returns:
         Dictionary with selected exercises, workout structure, and estimated duration
     """
+    # Handle default values if not provided
+    if time_available_minutes is None:
+        time_available_minutes = 60
+    if training_goal is None:
+        training_goal = "general_fitness"
+
     # This is a placeholder - in a real implementation, this would select 
     # exercises from a database based on the provided parameters
     
@@ -52,7 +58,7 @@ def select_exercises(
                 "muscle_group": "legs",
             },
         ],
-        "duration_minutes": 30,
+        "duration_minutes": time_available_minutes, # Use the potentially defaulted value
         "difficulty": experience_level,
         "equipment_needed": ["none"],
     }

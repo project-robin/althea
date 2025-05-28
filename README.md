@@ -4,11 +4,15 @@ A multi-agent AI fitness and nutrition coaching system built with Google's Agent
 
 ## Overview
 
-This system consists of a primary "Manager" agent and two specialized "Expert" agents to provide comprehensive fitness and nutrition guidance:
+This system features a flexible architecture centered around a primary "Manager" agent that intelligently orchestrates specialized "Expert" agents and tools to provide comprehensive fitness and nutrition guidance:
 
-- **Fitness Manager Agent (Main Agent)**: Acts as the user's primary interface, delegating tasks to expert agents and synthesizing information.
-- **Meal Plan Agent (Expert Agent)**: Specializes in creating personalized meal plans based on user goals and preferences.
-- **Workout Plan Agent (Expert Agent)**: Specializes in creating personalized workout routines based on fitness level and goals.
+- **Fitness Manager Agent (Main Agent)**: Serves as the user's primary interface. It analyzes user requests to determine their specific needs (meal plan, workout plan, both, progress tracking, or general advice). Based on this analysis and collected user information, it dynamically delegates the task to the appropriate specialized agent or workflow, and synthesizes the final response for the user. It also manages user profile data and long-term memory.
+- **Meal Plan Agent (Expert Agent)**: A specialized agent focused on generating personalized meal plans based on user goals, preferences, and dietary restrictions.
+- **Workout Plan Agent (Expert Agent)**: A specialized agent focused on creating customized workout routines based on user fitness level, goals, and available equipment.
+- **Parallel Planners (Workflow Agent)**: An orchestration agent used by the Manager Agent to run the Meal Plan Agent and Workout Plan Agent concurrently when a user requests both types of plans. This improves efficiency for combined requests.
+- **Report Synthesizer Tool**: A dedicated tool used by the Manager Agent to combine the results from the Meal Plan Agent and Workout Plan Agent into a single, comprehensive report when both plans are generated.
+
+This architecture allows for efficient handling of diverse user requests, leveraging parallel execution where beneficial, and maintaining a clear separation of concerns among specialized agents.
 
 ## Features
 

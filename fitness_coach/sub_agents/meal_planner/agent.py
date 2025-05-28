@@ -18,6 +18,7 @@ meal_planner = LlmAgent(
     instruction=MEAL_PLANNER_INSTRUCTION,
     tools=[
         calorie_calculator,
-        check_missing_fields_tool,
+#        check_missing_fields_tool, # Removed as validation is handled by the manager agent
     ],
+    output_key="meal_plan_result"
 ) 

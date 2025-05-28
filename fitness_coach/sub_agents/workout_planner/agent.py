@@ -18,6 +18,7 @@ workout_planner = LlmAgent(
     instruction=WORKOUT_PLANNER_INSTRUCTION,
     tools=[
         exercise_selector,
-        check_missing_fields_tool,
+#        check_missing_fields_tool, # Removed as validation is handled by the manager agent
     ],
+    output_key="workout_plan_result"
 ) 

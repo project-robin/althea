@@ -82,66 +82,77 @@ async def process_formatted_responses(request: Request, call_next):
     # Process the request normally
     response = await call_next(request)
     
-    # Check if this is a response from the /run endpoint
+    # Check if this is a response from the /run endpoint and is successful
     if request.url.path == "/run" and response.status_code == 200:
         try:
-            # Check if the response is a StreamingResponse
+            # Check if the response is a StreamingResponse (common for ADK)
+            # We need to consume the body to access it
             if hasattr(response, "body"):
-                # Only process responses with a body attribute
                 body = await response.body()
                 try:
+                    # Parse the response body as JSON (assuming it's a list of events)
                     events = json.loads(body)
                     print(f"Successfully parsed JSON response with {len(events)} events")
                     
-                    # Process each event looking for formatted responses
+                    # Process each event looking for model content with tool results
                     for i, event in enumerate(events):
+                        # Check if the event is from the model and has content parts
                         if event.get("content", {}).get("role") == "model":
                             parts = event.get("content", {}).get("parts", [])
                             print(f"Event {i+1} has {len(parts)} parts")
+
+                            # Check for function call results in the event
+                            # ADK puts tool results in parts with a 'functionResponse' key
                             for part_idx, part in enumerate(parts):
-                                if "text" in part:
-                                    # Look for structured data marker in the text
-                                    text = part["text"]
-                                    if "STRUCTURED_DATA:" in text:
+                                function_response = part.get("functionResponse")
+                                if function_response:
+                                    tool_name = function_response.get("name")
+                                    tool_output = function_response.get("response", {}).get("content")
+
+                                    # Check if this is the response_formatter tool and it returned content
+                                    if tool_name == "response_formatter" and tool_output:
                                         try:
-                                            # Extract structured data and clean the text
-                                            data_parts = text.split("STRUCTURED_DATA:")
-                                            clean_text = data_parts[0].strip()
-                                            
-                                            # Try to parse the structured data
-                                            if len(data_parts) > 1:
-                                                structured_data_text = data_parts[1].strip()
-                                                structured_data = json.loads(structured_data_text)
+                                            # The structured data is expected to be a JSON string within the tool output content
+                                            structured_data = json.loads(tool_output)
+                                            print(f"Found structured data from {tool_name} in event {i+1}, part {part_idx+1}")
                                                 
-                                                print(f"Found structured data in event {i+1}, part {part_idx+1}")
-                                                
-                                                # Add the structured data as a separate field
-                                                part["structured_data"] = structured_data
-                                                part["text"] = clean_text
+                                            # Find the preceding text part for this event to attach structured data
+                                            # Assuming the text part comes before the tool response part in the list
+                                            for text_part_idx in range(part_idx):
+                                                 if "text" in parts[text_part_idx]:
+                                                    # Add the structured data to the text part
+                                                    parts[text_part_idx]["structured_data"] = structured_data.get("formatted_response", {}).get("structured_data") # Extract the inner structured_data
+                                                    print(f"Attached structured data to text part {text_part_idx+1}")
+                                                    break # Assume one text part per structured data
+
                                         except json.JSONDecodeError as e:
-                                            print(f"Error parsing structured data JSON: {e}")
+                                            print(f"Error parsing structured data JSON from tool output: {e}")
                                         except Exception as e:
-                                            print(f"Error processing structured data: {str(e)}")
+                                            print(f"Error processing tool output: {str(e)}")
                     
-                    # Return modified response
+                    # Return the modified response as JSON
                     return Response(
                         content=json.dumps(events),
                         status_code=response.status_code,
                         headers=dict(response.headers),
                         media_type="application/json"
                     )
+
                 except json.JSONDecodeError as e:
-                    print(f"Error parsing response JSON: {e}")
+                    print(f"Error parsing response body as JSON: {e}")
                     # If the response isn't valid JSON, return it as is
                     return response
             else:
-                print(f"Skipping middleware processing for response type: {type(response).__name__}")
+                print(f"Skipping middleware processing for response type: {type(response).__name__} (no body)")
+
         except Exception as e:
-            print(f"Error in middleware: {str(e)}")
+            print(f"Error in middleware processing response: {str(e)}")
             import traceback
             traceback.print_exc()
     
     # Return original response for streaming responses or other endpoints
+    # Note: This middleware might need further refinement for true SSE streaming
+    # if the frontend expects incremental updates rather than a single JSON list.
     return response
 
 # Additional endpoints for our fitness coach app

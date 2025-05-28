@@ -14,8 +14,8 @@ def calculate_nutrition_needs(
     height_cm: float,
     activity_level: ActivityLevelType,
     goal: GoalType,
-    weight_loss_rate: Optional[float] = None,
-    muscle_gain_rate: Optional[float] = None,
+    weight_loss_rate: Optional[float],
+    muscle_gain_rate: Optional[float],
 ) -> Dict[str, Any]:
     """
     Calculates daily calorie and macronutrient needs based on user attributes and goals.
@@ -107,4 +107,4 @@ def calculate_nutrition_needs(
 
 calorie_calculator = FunctionTool(
     func=calculate_nutrition_needs,
-) 
+)

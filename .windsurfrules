@@ -1,0 +1,137 @@
+say "master" Every time before giving response
+
+# Althea - AI Fitness Coach - Cursor Rule File
+
+**Note to User:** This is the cursor rule file for the Althea project. Please refer to these guidelines when contributing code.
+
+Every time you choose to apply a rule(s), explicitly state the rule(s) in the output. You can abbreviate the rule description to a single word or phrase.
+
+## Project Context
+`Althea - AI Fitness Coach` is a `multi-agent AI fitness and nutrition coaching system` built with `Python, Google ADK, FastAPI, Streamlit, and SQLAlchemy`. It provides features for `personalized meal and workout plan creation, progress tracking, goal setting, and comprehensive advice`.
+
+The application focuses on:
+- `Scalability and Performance of Agent Interactions`
+- `User Experience and Interface Design (Streamlit)`
+- `Robust Data Handling (SQLAlchemy)`
+- `Integration with Google Agent Development Kit (ADK)`
+- `Specific Business Logic Domain (Fitness and Nutrition Coaching)`
+
+## Code Style and Structure
+- Write concise, technical `Python` code with accurate examples.
+- Use functional and declarative programming patterns where appropriate; be mindful of when to use object-oriented or other paradigms if they fit better.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names, often with auxiliary verbs or nouns indicating state/type (e.g., `isLoading`, `hasError`, `userProfile`).
+
+### Repository Structure
+*Describe your project's repository structure here. Below is a generic example; customize it heavily.*
+```
+fitness-coach/
+├── fitness_coach/
+│   ├── __init__.py
+│   ├── agent.py  # Main Manager Agent
+│   ├── prompt.py # Manager Agent prompts
+│   ├── tools/    # Manager Agent tools
+│   └── sub_agents/
+│       ├── meal_planner/
+│       │   ├── agent.py
+│       │   ├── prompt.py
+│       │   └── tools/
+│       └── workout_planner/
+│           ├── agent.py
+│           ├── prompt.py
+│           └── tools/
+├── deployment/
+├── eval/
+├── tests/
+├── .env.example
+├── pyproject.toml
+└── README.md
+```
+
+## Tech Stack
+- Primary Framework/Library: `Google Agent Development Kit (ADK)`
+- Primary Language: `Python`
+- UI Framework/Library: `Streamlit`
+
+- API Layer: `FastAPI (REST)`
+- Database: `SQLAlchemy`
+- Key External Services: `Google Generative AI (implied by ADK), MCPs for offlical    documentaion 
+- Testing Frameworks: cmd commmand adk web
+- Other Key Technologies: `Poetry (for dependency management)`
+
+## Naming Conventions
+- Directories: `[e.g., lowercase-with-dashes, camelCase, snake_case]` (e.g., `components/user-profile`)
+- Component/Class Files: `[e.g., PascalCase, camelCase]` (e.g., `UserProfileCard.tsx`)
+- Utility/Service Files: `[e.g., camelCase, snake_case]` (e.g., `dataTransformUtils.ts`)
+- Function/Method Names: `[e.g., camelCase, snake_case]`
+- Variable Names: `[e.g., camelCase, snake_case]` (use descriptive names)
+- Constant Names: `[e.g., UPPER_SNAKE_CASE]`
+
+
+
+## UI and Styling
+- Use `Streamlit` for UI elements.
+
+- Follow platform-specific design guidelines if developing for `Web`.
+- Implement clear loading states, feedback, and animations.
+
+## Error Handling
+- Implement proper error boundaries or global error handlers.
+- Log errors comprehensively (client-side and server-side) for debugging, using `[Your Logging Solution]`.
+- Provide user-friendly error messages; avoid exposing technical details to end-users.
+- Handle network failures and timeouts gracefully.
+- Implement specific error handling for critical services like `Google ADK interactions, database operations`.
+
+
+## Git Usage
+### Commit Message Prefixes (Example):
+- "fix:" for bug fixes
+- "feat:" for new features
+- "perf:" for performance improvements
+- "docs:" for documentation changes
+- "style:" for formatting, linting changes
+- "refactor:" for code refactoring without behavior change
+- "test:" for adding or modifying tests
+- "chore:" for maintenance tasks, build process, etc.
+- "ci:" for CI/CD related changes
+- "revert:" for reverting a previous commit
+
+### Rules:
+- Use lowercase for commit message subjects.
+- Keep the subject line concise (e.g., < 50-72 characters).
+- Provide a more detailed description in the commit body for non-obvious changes.
+- Reference issue/ticket numbers when applicable (e.g., `feat: add user login #123`).
+- Create feature branches from `main` and merge via Pull/Merge Requests.
+- Ensure PRs are reviewed before merging.
+
+## Documentation
+- Maintain a clear `README.md` with project overview, setup instructions, and contribution guidelines.
+- Document `Google ADK` integration, data flows, and API contracts.
+- Keep API documentation : Google's ADKdocumentation ,fast api documentation ,fast mcp documentation
+- Document environment variables and configuration settings.
+- Maintain clear documentation for complex algorithms or business logic.
+- Document architectural decisions and justifications in `[e.g., ADRs (Architecture Decision Records)]`.
+
+
+
+# Coding pattern preferences (AI Guidance)
+*These are general guidelines for how an AI assistant should approach coding tasks based on this rules file.*
+- Always prefer simple, clear, and maintainable solutions.
+- Avoid duplication of code whenever possible. Check existing codebase for similar functionality before implementing anew.
+- Write code that considers different environments (e.g., development, testing, production) and can be configured accordingly.
+- Only make changes that are explicitly requested or are well-understood, directly related, and necessary improvements to the requested change.
+- When fixing an issue or bug, prioritize using existing patterns and technologies. If a new pattern is introduced, justify it and ensure the old implementation is refactored or removed to avoid duplication.
+- Strive to keep the codebase clean, well-organized, and adhere to the defined structure.
+- Avoid writing one-off scripts directly in application code files if they are not part of the application's runtime logic. Place them in a `scripts/` directory.
+- Be mindful of file size; consider refactoring files that grow excessively large (e.g., > `[Your Preferred Line Limit, e.g., 300-500]` lines), depending on context and complexity.
+- Mocking data is primarily for testing environments. Avoid adding stubs or fake data patterns to code that affects development or production environments unless explicitly for development tooling (e.g., a dev-only mock server).
+- Never overwrite sensitive configuration files (e.g., `.env`) without explicit confirmation.
+
+# Coding workflow preferences (AI Guidance)
+*These are general guidelines for how an AI assistant should approach its workflow when contributing code.*
+- Focus on the areas of code directly relevant to the assigned task.
+- Do not modify code, files, or directories unrelated to the task without explicit instruction or clear necessity.
+- Aim to write thorough tests (unit, integration, as appropriate) for all significant functionality developed or modified.
+- Avoid making major unsolicited changes to established architectural patterns or the core workings of a feature, especially if it's stable and functional, unless explicitly instructed or after discussion.
+- Always consider the potential impact of code changes on other methods, modules, or areas of the codebase (e.g., side effects, breaking changes).
+

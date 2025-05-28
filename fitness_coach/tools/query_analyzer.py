@@ -28,6 +28,8 @@ def analyze_query(
     # and might use NLP or other techniques to better categorize the query
     query_lower = query.lower()
     
+    detected_tasks: List[str] = []
+
     meal_keywords = [
         "meal", "diet", "nutrition", "food", "eat", "eating", "recipe", "calories", "macros",
         "breakfast", "lunch", "dinner", "snack", "meal plan", "vegetarian", "vegan", "protein",
@@ -36,36 +38,39 @@ def analyze_query(
     workout_keywords = ["workout", "exercise", "training", "routine", "fitness", "gym", "strength", "cardio"]
     progress_keywords = ["progress", "track", "tracking", "improvement", "measurements", "weight", "record"]
     
-    # Determine the query type
-    query_type = "general"
-    
-    # Check for explicit meal plan requests first
-    if "meal plan" in query_lower or "food plan" in query_lower or "diet plan" in query_lower:
-        query_type = "meal_plan"
-        print(f"Query analyzer: Detected explicit meal plan request")
-    # Then check for other meal-related keywords
-    elif any(keyword in query_lower for keyword in meal_keywords):
-        query_type = "meal_plan"
-        print(f"Query analyzer: Detected meal plan request based on keywords")
+    # Check for meal-related keywords
+    if "meal plan" in query_lower or "food plan" in query_lower or "diet plan" in query_lower or \
+       any(keyword in query_lower for keyword in meal_keywords):
+        if "meal_plan" not in detected_tasks:
+            detected_tasks.append("meal_plan")
+        print(f"Query analyzer: Detected meal plan request")
+
     # Check for workout-related keywords
-    elif any(keyword in query_lower for keyword in workout_keywords):
-        query_type = "workout_plan"
+    if any(keyword in query_lower for keyword in workout_keywords):
+        if "workout_plan" not in detected_tasks:
+            detected_tasks.append("workout_plan")
         print(f"Query analyzer: Detected workout plan request")
+
     # Check for progress tracking keywords
-    elif any(keyword in query_lower for keyword in progress_keywords):
-        query_type = "progress_tracking"
+    if any(keyword in query_lower for keyword in progress_keywords):
+        if "progress_tracking" not in detected_tasks:
+            detected_tasks.append("progress_tracking")
         print(f"Query analyzer: Detected progress tracking request")
+        
+    # If no specific tasks are detected, consider it a general query
+    if not detected_tasks:
+        detected_tasks.append("general")
         
     # Extract potential profile data from the query (simplified example)
     # In a real implementation, this would be more sophisticated and use NLP
     profile_data = {}
     
-    # Log the query type for debugging
-    print(f"Query analyzer result: {query_type} for query: '{query[:50]}...'")
+    # Log the detected tasks for debugging
+    print(f"Query analyzer result: {detected_tasks} for query: '{query[:50]}...'")
     
     # Return routing information along with any profile data
     return {
-        "query_type": query_type,
+        "detected_tasks": detected_tasks,
         "user_id": user_id,
         "profile_data": profile_data,
         "user_profile": user_profile
