@@ -5,7 +5,7 @@ This document provides a visual representation of the agent pipeline in the Fitn
 ```text
 ┌────────────┐     ┌──────────────────────┐     ┌───────────────────┐
 │            │     │                      │     │                   │
-│   User     │◄───►│  Fitness Manager     │─────►│  Shared Session   │
+│   User     │◄───►│  Fitness Manager     │────►│  Shared Session   │
 │ (Frontend) │     │    (Root Agent)      │     │      State        │
 │            │     │                      │     │  (User Profile,   │
 └────────────┘     └───────────┬──────────┘     │   Results, etc.)  │
@@ -28,7 +28,7 @@ This document provides a visual representation of the agent pipeline in the Fitn
        │                       ▼
        │           ┌──────────────────────┐
        │           │  Report Synthesizer  │
-       │           │       (Tool)       │
+       │           │       (Tool)         │
        │           └───────────┬──────────┘
        │                       │ Uses Shared State,
        │                       │ formats response

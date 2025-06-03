@@ -1,7 +1,10 @@
 """Tool for selecting appropriate exercises based on user parameters."""
 
-from typing import Dict, List, Literal, Optional, Any
+from typing import Dict, List, Literal, Optional, Any, Union
 from google.adk.tools import FunctionTool
+import logging
+
+logger = logging.getLogger(__name__)
 
 ExperienceLevelType = Literal["beginner", "intermediate", "advanced"]
 WorkoutLocationType = Literal["home", "gym", "outdoors"]
@@ -15,7 +18,7 @@ def select_exercises(
     time_available_minutes: Optional[int] = None,
     exclude_exercises: Optional[List[str]] = None,
     training_goal: Optional[str] = None,
-) -> Dict[str, Any]:
+) -> Union[Dict[str, Any], Dict[str, str]]:
     """
     Selects appropriate exercises based on user parameters.
     
@@ -29,39 +32,43 @@ def select_exercises(
         training_goal: Optional specific training goal
         
     Returns:
-        Dictionary with selected exercises, workout structure, and estimated duration
+        Dictionary with selected exercises, workout structure, and estimated duration, or an error status.
     """
-    # Handle default values if not provided
-    if time_available_minutes is None:
-        time_available_minutes = 60
-    if training_goal is None:
-        training_goal = "general_fitness"
+    try:
+        # Handle default values if not provided
+        if time_available_minutes is None:
+            time_available_minutes = 60
+        if training_goal is None:
+            training_goal = "general_fitness"
 
-    # This is a placeholder - in a real implementation, this would select 
-    # exercises from a database based on the provided parameters
-    
-    # Example response format
-    return {
-        "exercises": [
-            {
-                "name": "Push-ups",
-                "sets": 3,
-                "reps": "10-12",
-                "rest_seconds": 60,
-                "muscle_group": "chest",
-            },
-            {
-                "name": "Bodyweight Squats",
-                "sets": 3,
-                "reps": "15-20",
-                "rest_seconds": 60,
-                "muscle_group": "legs",
-            },
-        ],
-        "duration_minutes": time_available_minutes, # Use the potentially defaulted value
-        "difficulty": experience_level,
-        "equipment_needed": ["none"],
-    }
+        # This is a placeholder - in a real implementation, this would select 
+        # exercises from a database based on the provided parameters
+        
+        # Example response format
+        return {
+            "exercises": [
+                {
+                    "name": "Push-ups",
+                    "sets": 3,
+                    "reps": "10-12",
+                    "rest_seconds": 60,
+                    "muscle_group": "chest",
+                },
+                {
+                    "name": "Bodyweight Squats",
+                    "sets": 3,
+                    "reps": "15-20",
+                    "rest_seconds": 60,
+                    "muscle_group": "legs",
+                },
+            ],
+            "duration_minutes": time_available_minutes, # Use the potentially defaulted value
+            "difficulty": experience_level,
+            "equipment_needed": ["none"],
+        }
+    except Exception as e:
+        logger.error(f"Error selecting exercises: {e}")
+        return {"status": "error", "message": "An error occurred while selecting exercises."}
 
 exercise_selector = FunctionTool(
     func=select_exercises,

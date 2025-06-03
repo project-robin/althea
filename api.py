@@ -168,7 +168,7 @@ async def agent_info():
     from fitness_coach.agent import fitness_manager
     from fitness_coach.sub_agents.meal_planner.agent import meal_planner
     from fitness_coach.sub_agents.workout_planner.agent import workout_planner
-    
+
     return {
         "main_agent": {
             "name": fitness_manager.name,

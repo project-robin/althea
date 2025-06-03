@@ -1,10 +1,9 @@
 # Core dependencies
 google-adk
 python-dotenv>=1.0.0
-
 # Backend (FastAPI)
 fastapi>=0.104.0
-uvicorn[standard]>=0.23.0
+uvicorn[standard]>=0.23.2
 sqlalchemy>=2.0.23
 pydantic>=2.4.2
 
@@ -13,4 +12,9 @@ streamlit>=1.29.0
 requests>=2.31.0
 
 # Utilities
-uuid>=1.30.0 
+uuid>=1.30.0
+
+# New dependencies
+asyncio
+re
+json 
