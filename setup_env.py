@@ -12,9 +12,17 @@ def create_env_file():
     # Get API key from user
     api_key = input("Enter your Google API key: ")
     
+    # Get Supabase credentials from user
+    supabase_url = input("Enter your Supabase URL: ")
+    supabase_key = input("Enter your Supabase Anon Key: ")
+    
     # Create the content for the .env file
     env_content = f"""# Google AI API configuration
 GOOGLE_API_KEY={api_key}
+
+# Supabase Configuration
+SUPABASE_URL={supabase_url}
+SUPABASE_KEY={supabase_key}
 
 # Or for Google Cloud (Vertex AI)
 # VERTEXAI=true

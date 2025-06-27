@@ -3,6 +3,7 @@
 from typing import Dict, Any, Optional, List, Set
 from google.adk.tools import FunctionTool, ToolContext
 import logging
+from fitness_coach import database # Import the new database module
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def get_user_profile(
     tool_context: ToolContext
 ) -> Dict[str, Any]:
     """
-    Retrieves a user's profile data from session state.
+    Retrieves a user's profile data from Supabase, falling back to session state if not found.
     
     Args:
         user_id: Identifier for the user
@@ -36,7 +37,15 @@ def get_user_profile(
         Dictionary with the user's profile data or empty dict if not found, or an error status.
     """
     try:
-        return tool_context.state.get(f"user_profile_{user_id}", {})
+        # Try to get profile from Supabase first
+        profile = database.get_user_profile(user_id)
+        if profile:
+            # Update session state with data from DB for consistency
+            tool_context.state[f"user_profile_{user_id}"] = profile
+            return profile
+        else:
+            # If not in DB, fall back to session state (existing behavior)
+            return tool_context.state.get(f"user_profile_{user_id}", {})
     except Exception as e:
         logger.error(f"Error retrieving profile for user {user_id}: {e}")
         return {"status": "error", "message": "An error occurred while retrieving your profile."}
@@ -47,7 +56,7 @@ def update_user_profile(
     tool_context: ToolContext
 ) -> Dict[str, Any]:
     """
-    Updates a user's profile data in session state.
+    Updates a user's profile data in session state and saves it to Supabase.
 
     Args:
         user_id: Identifier for the user
@@ -73,6 +82,12 @@ def update_user_profile(
 
         current_profile.update(standardized_data)
         tool_context.state[f"user_profile_{user_id}"] = current_profile
+
+        # Save updated profile to Supabase
+        saved_profile = database.save_user_profile(user_id, current_profile)
+        if saved_profile is None:
+            logger.error(f"Failed to save user profile to Supabase for user {user_id}")
+            return {"status": "error", "message": "Failed to save profile to database."}
 
         return current_profile
     except Exception as e:
@@ -108,7 +123,7 @@ def check_missing_fields(
     tool_context: ToolContext
 ) -> Dict[str, Any] | List[str]:
     """
-    Checks which required fields are missing from a user's profile in session state for a specific context.
+    Checks which required fields are missing from a user's profile (from Supabase or session state) for a specific context.
     
     Args:
         user_id: Identifier for the user
@@ -119,13 +134,15 @@ def check_missing_fields(
         List of missing field names on success, or an error status.
     """
     try:
-        current_profile = tool_context.state.get(f"user_profile_{user_id}", {})
+        # Get profile from Supabase, then session state
+        current_profile = database.get_user_profile(user_id)
+        if not current_profile:
+            current_profile = tool_context.state.get(f"user_profile_{user_id}", {})
 
         if context is None:
             context = "basic"
             
         if context not in REQUIRED_FIELDS:
-            # Log a warning if an unexpected context is provided but return an empty list
             logger.warning(f"Unknown context '{context}' provided to check_missing_fields for user {user_id}.")
             return []
 

@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 from google.adk.tools import FunctionTool
 import logging
+from fitness_coach import database # Import the new database module
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,30 @@ def track_progress(
     except Exception as e:
         logger.error(f"Error tracking progress for user {user_id}, data_type {data_type}: {e}")
         return {"status": "error", "message": f"An error occurred while tracking your {data_type} progress."}
+
+def save_meal_plan_to_db(
+    user_id: str,
+    meal_plan_details: Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Saves a confirmed meal plan for a user to the Supabase database.
+    
+    Args:
+        user_id: Identifier for the user
+        meal_plan_details: Dictionary containing the details of the meal plan
+        
+    Returns:
+        Dictionary with save status, or an error status.
+    """
+    try:
+        response = database.save_meal_plan(user_id, meal_plan_details)
+        if response:
+            return {"status": "success", "message": "Meal plan saved successfully.", "data": response}
+        else:
+            return {"status": "error", "message": "Failed to save meal plan to database."}
+    except Exception as e:
+        logger.error(f"Error saving meal plan for user {user_id}: {e}")
+        return {"status": "error", "message": "An error occurred while saving the meal plan."}
 
 def get_progress_report(
     user_id: str,
@@ -91,4 +116,8 @@ track_progress_tool = FunctionTool(
 
 get_progress_report_tool = FunctionTool(
     func=get_progress_report,
+)
+
+save_meal_plan_tool = FunctionTool(
+    func=save_meal_plan_to_db,
 ) 

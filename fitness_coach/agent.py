@@ -7,13 +7,12 @@ from google.adk.tools.agent_tool import AgentTool
 from google.adk.tools import FunctionTool
 import uuid # Import the uuid library
 from google.genai import types
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from dotenv import load_dotenv # Import load_dotenv
 from fitness_coach.prompt import MANAGER_INSTRUCTION
 from fitness_coach.tools.query_analyzer import query_analyzer
-from fitness_coach.tools.data_tracker import track_progress_tool, get_progress_report_tool
+from fitness_coach.tools.data_tracker import track_progress_tool, get_progress_report_tool, save_meal_plan_tool
 from fitness_coach.tools.user_profile import get_user_profile_tool, update_user_profile_tool, clear_user_profile_tool, check_missing_fields_tool
 #sub_agents
 from fitness_coach.sub_agents.meal_planner.agent import meal_planner
@@ -47,44 +46,14 @@ def ensure_user_id(session_state):
     return user_id
 
 
-async def get_supabase_tools_async():
-    """Connects to the mcp-supabase server via npx and returns the tools and exit stack."""
-    print("--- Attempting to start and connect to mcp-supabase MCP server via npx ---")
-    try:
-        # Check if uvx is available (basic check)
-        await asyncio.create_subprocess_shell('npx --version', stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-        tools, exit_stack = await MCPToolset.from_server(
-            connection_params=StdioServerParameters(
-                command='npx',
-                args=["-y",
-                    "@supabase/mcp-server-supabase@latest",
-                    "--access-token",
-                    "sbp_a58e61321d349cfce1f7c8931929cc4d5ff2bdbc"],
-            )
-        )
-        print(f"--- Successfully connected to mcp-supabase server. Discovered {len(tools)} tool(s). ---")
-        for tool in tools:
-            print(f"  - Discovered tool: {tool.name}")
-        return tools, exit_stack
-    except FileNotFoundError:
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("!!! ERROR: 'npx' command not found. Please install npx: pip install npx !!!")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        class DummyExitStack:
-            async def __aenter__(self): return self
-            async def __aexit__(self, *args): pass
-        return [], DummyExitStack()
-    except Exception as e:
-        print(f"--- ERROR connecting to or starting mcp-supabase server: {e} ---")
-        class DummyExitStack:
-            async def __aenter__(self): return self
-            async def __aexit__(self, *args): pass
-        return [], DummyExitStack()
-
-
-def create_root_agent_sync():
-    """Creates the root agent instance synchronously with basic tools (no MCP)."""
-    print("--- Creating root agent without MCP tools (synchronous initialization) ---")
+def create_root_agent():
+    """Creates the root agent instance, fetching tools from the MCP server."""
+    # Temporarily remove Supabase tool fetching until MCP is integrated or an alternative is chosen
+    # supabase_tools, supabase_exit_stack = get_supabase_tools_async()
+    # if not supabase_tools:
+    #     print("--- WARNING: No Supabase tools discovered. Agent will lack Supabase functionality. ---")
+    # The supabase_exit_stack should be handled by the Runner or the main application entry point
+    # to ensure proper cleanup, e.g., using async with supabase_exit_stack:
 
     return LlmAgent(
         name="fitness_manager",
@@ -104,60 +73,19 @@ def create_root_agent_sync():
             AgentTool(parallel_planners),
             search_long_term_memory_tool,
             report_synthesizer_tool,
-        ],  # No MCP tools for now to avoid async issues
+            save_meal_plan_tool,
+        ],  # Removed supabase_tools
         before_tool_callback=on_before_tool_use,
         after_tool_callback=on_after_tool_use,
         before_agent_callback=on_before_agent_run,
         after_agent_callback=on_after_agent_run,
         before_model_callback=on_before_model_sending,
         after_model_callback=on_after_model_sending
-    )
+    ), None # Changed to return None for exit_stack since supabase_exit_stack is removed
 
 
-async def create_root_agent_with_mcp():
-    """Creates the root agent instance after fetching tools from the MCP server."""
-    supabase_tools, supabase_exit_stack = await get_supabase_tools_async()
-    # Optionally, you can add a check here if supabase_tools are crucial
-    if not supabase_tools:
-        print("--- WARNING: No supabase tools discovered. Agent will lack supabase functionality. ---")
-
-    # Ensure the reddit_exit_stack is properly managed.
-    # In a full application, this would typically be handled by the Runner or main execution loop.
-    # For this example, we'll just return it along with the agent.
-
-    return LlmAgent(
-        name="fitness_manager",
-        model="gemini-2.5-flash-preview-05-20",
-        description="Primary agent that manages user interactions and delegates tasks to expert agents.",
-        instruction=MANAGER_INSTRUCTION,
-        tools=[
-            query_analyzer,
-            track_progress_tool,
-            get_progress_report_tool,
-            get_user_profile_tool,
-            update_user_profile_tool,
-            clear_user_profile_tool,
-            check_missing_fields_tool,
-            AgentTool(meal_planner),
-            AgentTool(workout_planner),
-            AgentTool(parallel_planners),
-            search_long_term_memory_tool,
-            report_synthesizer_tool,
-        ] + supabase_tools,  # Add the dynamically fetched supabase tools
-        before_tool_callback=on_before_tool_use,
-        after_tool_callback=on_after_tool_use,
-        before_agent_callback=on_before_agent_run,
-        after_agent_callback=on_after_agent_run,
-        before_model_callback=on_before_model_sending,
-        after_model_callback=on_after_model_sending
-    ), supabase_exit_stack
-
-
-# Create the root agent synchronously to avoid coroutine issues
-root_agent = create_root_agent_sync()
+# Create the root agent factory function to be called synchronously
+root_agent, _ = create_root_agent()
 
 # Also create a reference with the expected name for backward compatibility
 fitness_manager = root_agent
-
-# The supabase_mcp_exit_stack should be handled by the Runner or the main application entry point
-# to ensure proper cleanup, e.g., using async with supabase_mcp_exit_stack:
